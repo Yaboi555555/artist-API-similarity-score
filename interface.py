@@ -1,9 +1,11 @@
 import tkinter as tk
 import threading
+import requests
 
-from lastfm_api import get_similar_artists
-from musicbrainz_api import get_artist_data
+from project import get_similar_artists, get_artist_data, format_album_info
 
+from PIL import Image, ImageTk
+from io import BytesIO
 
 def create_gui():
     root = tk.Tk()
@@ -167,9 +169,22 @@ def create_gui():
 
         # fetch information in the background
         def fetch_data():
+            covers = []
             try:
                 similar_artists = get_similar_artists(artist_name)
                 albums, singles = get_artist_data(artist_name)
+                if albums is not None:
+                    for album in albums:
+                        try:
+                            response = requests.get(album[5], timeout=10)
+
+                            if response.status_code == 200:
+                                covers.append(response.content)
+                            else:
+                                covers.append(None)
+
+                        except requests.RequestException:
+                            covers.append(None)
 
                 root.after(
                     0,
@@ -177,7 +192,8 @@ def create_gui():
                     artist_name,
                     similar_artists,
                     albums,
-                    singles
+                    singles,
+                    covers
                 )
 
             except Exception as error:
@@ -187,7 +203,7 @@ def create_gui():
         search_thread.start()
 
     # display search results
-    def display_results(artist_name, similar_artists, albums, singles):
+    def display_results(artist_name, similar_artists, albums, singles, covers):
         search_button.config(state="normal")
 
         if similar_artists:
@@ -230,10 +246,18 @@ def create_gui():
             ).pack(anchor="w", padx=20)
 
         else:
-            for album in albums:
+            for i, album in enumerate(albums):
                 title = album[0]
                 release_date = album[2]
                 tags = ", ".join(album[3])
+                cover = covers[i]
+                if cover is not None:
+                    image = Image.open(BytesIO(cover))
+                    image = image.resize((120, 120))
+                    photo = ImageTk.PhotoImage(image)
+                    image_label = tk.Label(albums_results, image=photo, bg="#252A2D")
+                    image_label.image = photo
+                    image_label.pack(anchor="w", padx=20)
 
                 tk.Label(
                     albums_results,
