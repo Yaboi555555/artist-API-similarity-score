@@ -247,9 +247,7 @@ def create_gui():
 
         else:
             for i, album in enumerate(albums):
-                title = album[0]
-                release_date = album[2]
-                tags = ", ".join(album[3])
+                album_info = format_album_info(album)
                 cover = covers[i]
                 if cover is not None:
                     image = Image.open(BytesIO(cover))
@@ -261,7 +259,7 @@ def create_gui():
 
                 tk.Label(
                     albums_results,
-                    text=f"{title}\n{release_date}  /  {tags}",
+                    text=album_info,
                     font=("Arial", 11),
                     fg="white",
                     bg="#252A2D",

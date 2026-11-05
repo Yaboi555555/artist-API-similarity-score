@@ -22,7 +22,7 @@ def get_similar_artists(artist_name):               # finds similar artist names
     response = requests.get(url, params=params)
     
     data = response.json()                          # returns a json file
-    if "error" in data:                             # basic error message, just in case
+    if "error" in data:
         print("Error:", data["message"])
         return []
 
@@ -30,11 +30,11 @@ def get_similar_artists(artist_name):               # finds similar artist names
     for artist in data["similarartists"]["artist"]: # scouts for the similar artists.
         name = artist["name"]
         match = float(artist["match"]) * 100        # percentage 
-        similar_artists.append((name, match))       # expand list for every artist
+        similar_artists.append((name, match)) 
 
     return similar_artists
 
-# MUSICBRAINZ API // SEE PROJECT.PY
+# MUSICBRAINZ API // 
 musicbrainzngs.set_useragent("OnTheNeedle", "0.1", "fstover25@gmail.com")
 
 
@@ -80,7 +80,7 @@ def get_artist_data(artist_name):
     singles = get_releases("single")
     return albums, singles
 
-# third function
+# formatting function
 def format_album_info(album):
     title = album[0]
     release_date = album[2]
